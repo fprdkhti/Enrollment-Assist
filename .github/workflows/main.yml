@@ -1,0 +1,16 @@
+stages:
+  - test
+
+test-bake:
+  extends: .bake-high-memory
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: always
+
+test:
+  stage: test
+  script:
+    - python3 manage.py migrate
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: always
