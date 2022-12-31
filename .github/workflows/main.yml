@@ -1,16 +1,25 @@
-stages:
-  - test
+name: Java CI with Maven
 
-test-bake:
-  extends: .bake-high-memory
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: always
+on:
+  push:
+    branches: [ "CA5" ]
 
-test:
-  stage: test
-  script:
-    - python3 manage.py migrate
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: always
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ./.github/actions/setup-composite
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml  
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ./.github/actions/setup-composite
+    - name: Run tests with Maven
+      run: mvn -B test --file pom.xml
